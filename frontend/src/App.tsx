@@ -9,6 +9,9 @@ import TicketDetail from './pages/TicketDetail';
 import DashboardAdmin from './pages/DashboardAdmin';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import AdminTechnicians from './pages/AdminTechnicians';
+import ForgotPassword from './pages/ForgotPassword';
+
 
 
 
@@ -35,6 +38,7 @@ export default function App() {
           />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           
           <Route 
             path="/dashboard" 
@@ -63,6 +67,7 @@ export default function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/admin/technicians" element={<AdminTechnicians />} />
           
           {/* La route par défaut (404 -> Login) DOIT être en toute dernière position */}
           <Route path="*" element={<Navigate to="/login" replace />} />

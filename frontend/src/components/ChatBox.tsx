@@ -1,22 +1,24 @@
 import { useEffect, useState, useRef } from 'react';
-import { getMessages, sendMessage } from '../api/messages';
+import { getMessages, sendMessage, connectToTicketChat } from '../api/messages';
 import { useAuth } from '../context/AuthContext';
 import { FiSend } from 'react-icons/fi';
-import type { Message } from '../types';
+import type { WebSocketMessage } from '../types';
 
 export default function ChatBox({ ticketId }: { ticketId: string }) {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
+  // On utilise WebSocketMessage car il contient le nom de l'envoyeur (sender_name)
+  const [messages, setMessages] = useState<WebSocketMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
-  // Charger les messages au démarrage
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const data = await getMessages(ticketId);
-        setMessages(data);
+        // On adapte le type Message vers WebSocketMessage (sender_name vide pour l'historique)
+        setMessages(data.map(m => ({ ...m, sender_name: '' })));
       } catch (error) {
         console.error("Erreur lors du chargement des messages", error);
       } finally {
@@ -24,6 +26,16 @@ export default function ChatBox({ ticketId }: { ticketId: string }) {
       }
     };
     fetchMessages();
+
+    // --- CONNEXION WEBSOCKET ---
+    wsRef.current = connectToTicketChat(ticketId, (newMsg: WebSocketMessage) => {
+      setMessages((prev) => [...prev, newMsg]);
+    });
+
+    // Nettoyage à la fermeture du composant
+    return () => {
+      wsRef.current?.close();
+    };
   }, [ticketId]);
 
   // Faire défiler vers le bas automatiquement quand un nouveau message arrive
@@ -35,13 +47,16 @@ export default function ChatBox({ ticketId }: { ticketId: string }) {
     e.preventDefault();
     if (!newMessage.trim() || !user) return;
 
+    const messageContent = newMessage;
+    setNewMessage(''); // On vide l'input immédiatement pour l'UX
+
     try {
-      const sentMessage = await sendMessage(ticketId, newMessage);
-      setMessages([...messages, sentMessage]);
-      setNewMessage('');
+      // L'envoi en HTTP déclenchera le broadcast WebSocket côté backend
+      await sendMessage(ticketId, messageContent);
     } catch (error) {
       console.error("Erreur lors de l'envoi du message", error);
       alert("Impossible d'envoyer le message.");
+      setNewMessage(messageContent); // On remet le texte en cas d'erreur
     }
   };
 

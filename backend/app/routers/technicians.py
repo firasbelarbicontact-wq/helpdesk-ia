@@ -43,3 +43,27 @@ def update_my_technician_profile(
     db.commit()
     db.refresh(tech_profile)
     return tech_profile
+
+# --- NOUVELLE ROUTE : Statistiques du technicien connecté ---
+@router.get("/me/stats")
+def get_my_technician_stats(current_user: Employe = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role != RoleEnum.TECHNICIAN:
+        raise HTTPException(status_code=403, detail="Réservé aux techniciens")
+    tech = db.query(Technician).filter(Technician.employe_id == current_user.id).first()
+    if not tech:
+        raise HTTPException(status_code=404, detail="Profil technicien introuvable")
+    
+    # Récupérer tous les tickets notés du technicien
+    rated_tickets = db.query(Ticket).filter(
+        Ticket.technician_id == tech.id,
+        Ticket.rating != None
+    ).all()
+    
+    avg_rating = sum(t.rating for t in rated_tickets) / len(rated_tickets) if rated_tickets else 0
+    total_tickets = db.query(Ticket).filter(Ticket.technician_id == tech.id).count()
+    
+    return {
+        "avg_rating": round(avg_rating, 2),
+        "total_rated_tickets": len(rated_tickets),
+        "total_tickets": total_tickets
+    }

@@ -29,6 +29,8 @@ class Employe(Base):
 
     technician_profile = relationship("Technician", back_populates="employe", uselist=False, cascade="all, delete-orphan")
     tickets = relationship("Ticket", back_populates="employe")
+    otp_code = Column(String(6), nullable=True)
+    otp_expires_at = Column(DateTime, nullable=True)
     
     
 class Technician(Base):
@@ -41,3 +43,4 @@ class Technician(Base):
     tickets = relationship("Ticket", back_populates="technician")
     employe = relationship("Employe", back_populates="technician_profile")
     skills = relationship("TechnicianSkill", back_populates="technician", cascade="all, delete-orphan")
+    

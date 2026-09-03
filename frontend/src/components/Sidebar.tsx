@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FaHeadset } from 'react-icons/fa';
-import { FiGrid, FiPlusCircle, FiSettings, FiLogOut, FiUser, FiX } from 'react-icons/fi';
+import { FiGrid, FiPlusCircle, FiSettings, FiLogOut, FiUser, FiX, FiTool } from 'react-icons/fi';
 
 export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { user, logout } = useAuth();
@@ -73,14 +73,23 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
         )}
 
         {user?.role === 'ADMIN' && (
-          <Link
-            to="/admin"
-            onClick={onClose}
-            className={`${linkBase} ${isActive('/admin') ? activeLink : inactiveLink}`}
-          >
-            <FiSettings className="mr-3 text-lg" /> Administration
-          </Link>
-        )}
+  <>
+    <Link
+      to="/admin"
+      onClick={onClose}
+      className={`${linkBase} ${isActive('/admin') ? activeLink : inactiveLink}`}
+    >
+      <FiSettings className="mr-3 text-lg" /> Administration
+    </Link>
+    <Link
+      to="/admin/technicians"
+      onClick={onClose}
+      className={`${linkBase} ${isActive('/admin/technicians') ? activeLink : inactiveLink}`}
+    >
+      <FiTool className="mr-3 text-lg" /> Détails Techniciens
+    </Link>
+  </>
+)}
       </nav>
 
       <div className="border-t border-slate-800 p-4">

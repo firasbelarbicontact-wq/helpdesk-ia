@@ -37,3 +37,7 @@ class TicketResponse(BaseModel):
 
 class TicketStatusUpdate(BaseModel):
     status: TicketStatus
+
+class TicketRatingCreate(BaseModel):
+    rating: int
+    feedback: str | None = None

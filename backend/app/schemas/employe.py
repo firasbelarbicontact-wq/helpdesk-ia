@@ -9,7 +9,7 @@ class EmployeCreate(BaseModel):
     first_name: str | None = None  # <-- AJOUTÉ
     last_name: str | None = None   # <-- AJOUTÉ
     phone: str | None = None       # <-- AJOUTÉ
-    kill_ids: list[int] = []  # <-- AJOUTÉ : Liste d'IDs de catégories
+    skill_ids: list[int] = []  # <-- AJOUTÉ : Liste d'IDs de catégories
 
 
 class EmployeLogin(BaseModel):
