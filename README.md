@@ -5,6 +5,9 @@ Application web de gestion de tickets informatiques avec assistance par intellig
 ## Fonctionnalités
 
 - Authentification JWT et gestion du profil utilisateur
+- Connexion administrateur sécurisée par code OTP envoyé par e-mail
+- Récupération du mot de passe par code OTP
+- Validation, activation, désactivation et suppression des comptes par l'administrateur
 - Création, consultation et suivi des tickets
 - Attribution des tickets aux techniciens
 - Gestion des statuts, pièces jointes et évaluations
@@ -13,6 +16,8 @@ Application web de gestion de tickets informatiques avec assistance par intellig
 - Analyse des tickets par intelligence artificielle via Ollama
 - Tableaux de bord pour les employés, techniciens et administrateurs
 - Gestion administrative des utilisateurs et des techniciens
+- Gestion des compétences et de la disponibilité des techniciens
+- Historique des interventions évaluées et affichage des commentaires
 - Notifications et mises à jour en temps réel via WebSocket
 
 ## Technologies
@@ -35,6 +40,7 @@ Application web de gestion de tickets informatiques avec assistance par intellig
 - PostgreSQL
 - JWT avec `python-jose`
 - Ollama pour les fonctionnalités IA
+- SMTP pour les e-mails de connexion, d'affectation et de récupération de compte
 
 ### Infrastructure
 
@@ -113,6 +119,19 @@ Au démarrage, le backend initialise automatiquement les tables et les données 
 
 La configuration de développement est définie dans `docker-compose.yml`.
 
+Le frontend utilise la variable `VITE_API_URL` pour déterminer l'adresse de l'API. Si elle n'est pas définie hors Docker, l'adresse par défaut est `http://127.0.0.1:8000`.
+
+Le backend peut utiliser les variables suivantes pour l'envoi d'e-mails :
+
+| Variable        | Description                                | Valeur par défaut |
+| --------------- | ------------------------------------------ | ----------------- |
+| `SMTP_SERVER`   | Serveur SMTP                               | `smtp.gmail.com`  |
+| `SMTP_PORT`     | Port SMTP                                  | `587`             |
+| `SMTP_EMAIL`    | Adresse d'envoi                            | Vide              |
+| `SMTP_PASSWORD` | Mot de passe ou mot de passe d'application | Vide              |
+
+Si `SMTP_EMAIL` ou `SMTP_PASSWORD` n'est pas renseigné, les e-mails ne sont pas envoyés et le backend signale que le service n'est pas configuré.
+
 Avant un déploiement réel, modifiez impérativement :
 
 - `SECRET_KEY`
@@ -120,6 +139,7 @@ Avant un déploiement réel, modifiez impérativement :
 - Les paramètres CORS
 - L'URL de l'API frontend
 - Le modèle Ollama utilisé
+- Les identifiants SMTP et, pour Gmail, utilisez de préférence un mot de passe d'application.
 
 Les valeurs présentes dans Docker Compose sont destinées au développement local uniquement.
 
@@ -195,6 +215,12 @@ La commande `docker compose down -v` supprime les données PostgreSQL et Ollama 
 ## Données de démonstration
 
 Le script `backend/create_db.py` recrée la base et génère des données de démonstration au démarrage du backend. Ce comportement est pratique pour une présentation locale, mais doit être adapté avant toute utilisation en production afin de préserver les données existantes.
+
+## Parcours utilisateurs
+
+- **Employé** : s'inscrire, attendre la validation, créer un ticket, échanger avec le technicien et évaluer l'intervention.
+- **Technicien** : consulter les tickets attribués, mettre à jour sa disponibilité et son profil, puis consulter ses interventions évaluées.
+- **Administrateur** : se connecter par OTP, valider ou gérer les comptes, consulter les statistiques et superviser les techniciens.
 
 ## Sécurité
 

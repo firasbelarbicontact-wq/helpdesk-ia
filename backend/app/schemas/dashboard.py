@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 class DashboardStats(BaseModel):
+    """Structure des données pour le tableau de bord Administrateur."""
     total_tickets: int
     resolved_tickets: int
     in_progress_tickets: int

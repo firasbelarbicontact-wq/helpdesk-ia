@@ -11,7 +11,6 @@ Base.metadata.create_all(bind=engine)
 
 print("Tables créées avec succès !")
 
-# --- INSÉRER LES DONNÉES DE TEST ---
 db = SessionLocal()
 
 from app.models.employe import Employe, RoleEnum, Technician
@@ -36,7 +35,7 @@ def create_user(db, email, role, first_name, last_name, phone, is_available=True
         db.add(user)
         db.commit()
         db.refresh(user)
-        
+
         if role == RoleEnum.TECHNICIAN:
             tech_profile = Technician(
                 employe_id=user.id,
@@ -103,10 +102,10 @@ for i in range(40):
     # Date aléatoire dans les 90 derniers jours
     days_ago = random.randint(0, 90)
     created_date = now - timedelta(days=days_ago, hours=random.randint(0, 23))
-    
+
     problem = random.choice(problems)
     emp = random.choice(employees)
-    
+
     # Déterminer le statut selon l'ancienneté
     if days_ago < 5:
         status = random.choice([TicketStatus.NOUVEAU, TicketStatus.EN_COURS, TicketStatus.EN_ATTENTE_TECH])
@@ -121,7 +120,7 @@ for i in range(40):
     else:
         status = random.choice([TicketStatus.RESOLU, TicketStatus.FERME])
         tech = random.choice(technicians)
-        rating = random.choice([3, 4, 5, 5, 5]) # Beaucoup de 5/5
+        rating = random.choice([3, 4, 5, 5, 5])
         feedbacks_pool = ["Très bon travail", "Problème réglé rapidement", "Technicien compétent", "Merci"]
         feedback = random.choice(feedbacks_pool)
 
@@ -159,7 +158,7 @@ for i in range(40):
             action=f"Technicien assigné: {tech.employe.first_name} {tech.employe.last_name}",
             created_at=created_date + timedelta(minutes=10)
         ))
-        
+
         # Ajouter des messages si le ticket est en cours ou résolu
         if status in [TicketStatus.EN_COURS, TicketStatus.RESOLU, TicketStatus.FERME]:
             db.add(Message(

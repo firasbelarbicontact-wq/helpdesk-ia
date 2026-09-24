@@ -23,11 +23,16 @@ export interface Category {
   name: string;
 }
 
+export interface TechnicianSkill {
+  category: Category;
+}
+
 export interface Technician {
   id: string;
   bio: string | null;
   is_available: boolean;
   employe: User;
+  skills?: TechnicianSkill[];
 }
 
 export interface AIAnalysisResult {
@@ -41,7 +46,6 @@ export interface TicketAIAnalysis {
   suggested_solutions: string[];
 }
 
-// NOUVEAU : Interface pour l'historique
 export interface TicketHistory {
   id: string;
   ticket_id: string;
@@ -59,7 +63,7 @@ export interface Ticket {
   technician: Technician | null;
   category: Category | null;
   created_at: string;
-  updated_at?: string; // <-- AJOUTE CETTE LIGNE
+  updated_at?: string;
   ai_analysis: TicketAIAnalysis | null;
   rating?: number | null;
   feedback?: string | null;
@@ -74,7 +78,15 @@ export interface Message {
   sent_at: string;
 }
 
-// NOUVEAU : Interface pour les stats du Dashboard Admin
+export interface WebSocketMessage {
+  id: string;
+  ticket_id: string;
+  sender_id: string;
+  sender_name: string;
+  content: string;
+  sent_at: string;
+}
+
 export interface DashboardStats {
   total_tickets: number;
   resolved_tickets: number;
@@ -83,23 +95,32 @@ export interface DashboardStats {
   total_employes: number;
   total_technicians: number;
 }
-// NOUVEAU : Type spécifique pour les messages reçus en temps réel (WebSocket)
-export interface WebSocketMessage {
-  id: string;
-  ticket_id: string;
-  sender_id: string;
-  sender_name: string; // Le backend envoie le nom de l'envoyeur pour le WS
-  content: string;
-  sent_at: string;
-}
+
 export interface TechnicianStats {
   avg_rating: number;
   total_rated_tickets: number;
   total_tickets: number;
 }
 
+export interface SimpleTicket {
+  id: string;
+  title: string;
+  status: string | null;
+  rating: number | null | undefined;
+  feedback?: string | null;
+  employe_name?: string;
+  technician_name?: string;
+  created_at: string | null | undefined;
+}
+
 export interface TechnicianDetail {
   technician: Technician;
   stats: TechnicianStats;
-  tickets: Ticket[];
+  tickets: SimpleTicket[];
+}
+
+export interface TicketFilters {
+  status?: string;
+  start_date?: string;
+  end_date?: string;
 }

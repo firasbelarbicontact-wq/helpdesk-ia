@@ -1,16 +1,15 @@
 from pydantic import BaseModel
-from typing import List, Optional
 
-# Ce schéma est utilisé pour l'API /analyze (ce qu'on renvoie à l'utilisateur)
+# Schéma utilisé pour l'API /analyze (ce qu'on renvoie au frontend)
 class AIAnalysisResponse(BaseModel):
     category: str
-    causes: List[str]
-    solutions: List[str]
+    causes: list[str]
+    solutions: list[str]
 
-# Ce schéma est utilisé quand on renvoie un Ticket (ce qui est stocké en DB)
+# Schéma utilisé quand on renvoie un Ticket (ce qui est stocké en DB)
 class AIAnalysisDBResponse(BaseModel):
-    possible_causes: Optional[List[str]] = None
-    suggested_solutions: Optional[List[str]] = None
+    possible_causes: list[str] | None = None
+    suggested_solutions: list[str] | None = None
 
     class Config:
-        from_attributes = True
+        from_attributes = True # Permet de lire les données depuis un objet SQLAlchemy

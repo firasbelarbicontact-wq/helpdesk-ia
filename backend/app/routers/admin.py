@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api/admin", tags=["Administration"])
 
 @router.put("/validate/{employe_id}", response_model=EmployeResponse)
 def validate_employe(employe_id: str, db: Session = Depends(get_db), current_admin: Employe = Depends(get_current_admin)):
+    """Valide le compte d'un nouvel employé ou technicien."""
     employe = db.query(Employe).filter(Employe.id == employe_id).first()
     if not employe:
         raise HTTPException(status_code=404, detail="Employé introuvable")
@@ -21,6 +22,7 @@ def validate_employe(employe_id: str, db: Session = Depends(get_db), current_adm
 
 @router.put("/deactivate/{employe_id}", response_model=EmployeResponse)
 def deactivate_employe(employe_id: str, db: Session = Depends(get_db), current_admin: Employe = Depends(get_current_admin)):
+    """Désactive un compte utilisateur (Soft Delete)."""
     employe = db.query(Employe).filter(Employe.id == employe_id).first()
     if not employe:
         raise HTTPException(status_code=404, detail="Employé introuvable")
@@ -33,6 +35,7 @@ def deactivate_employe(employe_id: str, db: Session = Depends(get_db), current_a
 
 @router.put("/activate/{employe_id}", response_model=EmployeResponse)
 def activate_employe(employe_id: str, db: Session = Depends(get_db), current_admin: Employe = Depends(get_current_admin)):
+    """Réactive un compte précédemment désactivé."""
     employe = db.query(Employe).filter(Employe.id == employe_id).first()
     if not employe:
         raise HTTPException(status_code=404, detail="Employé introuvable")
@@ -43,12 +46,13 @@ def activate_employe(employe_id: str, db: Session = Depends(get_db), current_adm
 
 @router.delete("/users/{employe_id}")
 def delete_user(employe_id: str, db: Session = Depends(get_db), current_admin: Employe = Depends(get_current_admin)):
+    """Supprime définitivement un utilisateur s'il n'a aucun ticket associé."""
     employe = db.query(Employe).filter(Employe.id == employe_id).first()
     if not employe:
         raise HTTPException(status_code=404, detail="Utilisateur introuvable")
     if employe.role == RoleEnum.ADMIN:
         raise HTTPException(status_code=400, detail="Impossible de supprimer un compte administrateur")
-        
+
     tickets_as_employe = db.query(Ticket).filter(Ticket.employe_id == employe_id).count()
     tickets_as_tech = 0
     if employe.role == RoleEnum.TECHNICIAN:
@@ -58,22 +62,24 @@ def delete_user(employe_id: str, db: Session = Depends(get_db), current_admin: E
 
     if tickets_as_employe > 0 or tickets_as_tech > 0:
         raise HTTPException(status_code=400, detail="Cet utilisateur a des tickets associés. Veuillez utiliser 'Désactiver'.")
-        
+
     if employe.role == RoleEnum.TECHNICIAN:
         tech_profile = db.query(Technician).filter(Technician.employe_id == employe_id).first()
         if tech_profile:
             db.delete(tech_profile)
-            
+
     db.delete(employe)
     db.commit()
     return {"detail": "Utilisateur supprimé définitivement."}
 
 @router.get("/users", response_model=list[EmployeResponse])
 def get_all_users(db: Session = Depends(get_db), current_admin: Employe = Depends(get_current_admin)):
+    """Récupère la liste de tous les utilisateurs inscrits."""
     return db.query(Employe).order_by(Employe.created_at.desc()).all()
 
 @router.get("/stats", response_model=DashboardStats)
 def get_dashboard_stats(db: Session = Depends(get_db), current_admin: Employe = Depends(get_current_admin)):
+    """Calcule les statistiques globales pour le tableau de bord Admin."""
     total_tickets = db.query(Ticket).count()
     resolved_tickets = db.query(Ticket).filter(Ticket.status == TicketStatus.RESOLU).count()
     in_progress_tickets = db.query(Ticket).filter(Ticket.status == TicketStatus.EN_COURS).count()
@@ -91,7 +97,9 @@ def get_dashboard_stats(db: Session = Depends(get_db), current_admin: Employe = 
 
 @router.get("/technicians/details")
 def get_technicians_details(db: Session = Depends(get_db), current_admin: Employe = Depends(get_current_admin)):
+    """Récupère les profils, tickets et moyennes de tous les techniciens (Audit)."""
     try:
+        # joinedload optimise la requête pour éviter le problème N+1
         techs = db.query(Technician).options(joinedload(Technician.employe)).all()
         result = []
 
@@ -112,12 +120,14 @@ def get_technicians_details(db: Session = Depends(get_db), current_admin: Employ
                 status_value = t.status.value if isinstance(t.status, TicketStatus) else str(t.status)
                 tickets_data.append({
                     "id": str(t.id),
-                    "title": t.title or "",
+                    "title": t.title if t.title else "",
                     "status": status_value,
                     "rating": t.rating,
+                    "feedback": t.feedback if t.feedback else None,
+                    "employe_name": f"{t.employe.first_name} {t.employe.last_name}" if t.employe else "N/A",
+                    "technician_name": f"{tech.employe.first_name} {tech.employe.last_name}",
                     "created_at": t.created_at.isoformat() if t.created_at else None,
                 })
-
             result.append({
                 "technician": {
                     "id": str(tech.id),

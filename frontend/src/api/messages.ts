@@ -1,5 +1,5 @@
 import client from './client';
-import type { Message, WebSocketMessage } from '../types'; // <-- Import du nouveau type
+import type { Message, WebSocketMessage } from '../types';
 
 export async function getMessages(ticketId: string): Promise<Message[]> {
   const response = await client.get<Message[]>(`/api/messages/ticket/${ticketId}`);
@@ -11,9 +11,7 @@ export async function sendMessage(ticketId: string, content: string): Promise<Me
   return response.data;
 }
 
-// NOUVELLE FONCTION : Connexion WebSocket pour le temps réel
 export function connectToTicketChat(ticketId: string, onMessageReceived: (message: WebSocketMessage) => void): WebSocket {
-  // On remplace http par ws
   const wsBaseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace('http', 'ws');
   const ws = new WebSocket(`${wsBaseUrl}/api/messages/ws/${ticketId}`);
 
@@ -22,9 +20,7 @@ export function connectToTicketChat(ticketId: string, onMessageReceived: (messag
     onMessageReceived(data);
   };
 
-  ws.onclose = () => {
-    console.log(`WebSocket déconnecté pour le ticket ${ticketId}`);
-  };
+  ws.onclose = () => {};
 
   return ws;
 }

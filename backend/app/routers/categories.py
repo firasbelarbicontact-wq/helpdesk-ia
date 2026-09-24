@@ -8,5 +8,5 @@ router = APIRouter(prefix="/api/categories", tags=["Categories"])
 
 @router.get("/", response_model=list[CategoryResponse])
 def get_categories(db: Session = Depends(get_db)):
-    """Récupère toutes les catégories de problèmes"""
+    """Récupère toutes les catégories de problèmes informatiques."""
     return db.query(Category).all()

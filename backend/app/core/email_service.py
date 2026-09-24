@@ -5,11 +5,11 @@ import random
 from app.core.config import settings
 
 def generate_otp() -> str:
-    """Génère un code OTP à 6 chiffres"""
+    """Génère un code OTP (One-Time Password) à 6 chiffres."""
     return str(random.randint(100000, 999999))
 
 def send_email(to_email: str, subject: str, body: str, html: bool = True):
-    """Fonction générique pour envoyer un email via SMTP"""
+    """Fonction générique pour envoyer un email via le serveur SMTP de Gmail."""
     if not settings.SMTP_EMAIL or not settings.SMTP_PASSWORD:
         print("❌ Email non configuré dans le fichier .env")
         return
@@ -18,11 +18,12 @@ def send_email(to_email: str, subject: str, body: str, html: bool = True):
     msg['From'] = f"HelpDesk IA <{settings.SMTP_EMAIL}>"
     msg['To'] = to_email
     msg['Subject'] = subject
-    
+
     content_type = 'html' if html else 'plain'
     msg.attach(MIMEText(body, content_type))
 
     try:
+        # Connexion au serveur Gmail avec un timeout de 10s pour éviter de bloquer l'API
         server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
         server.starttls()
         server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
@@ -32,10 +33,8 @@ def send_email(to_email: str, subject: str, body: str, html: bool = True):
     except Exception as e:
         print(f"❌ Erreur d'envoi d'email: {e}")
 
-# --- FONCTIONS SPÉCIFIQUES PRÊTES À L'EMPLOI ---
-
 def send_otp_login_email(to_email: str, first_name: str, otp: str):
-    """Envoie un bel email HTML avec le code OTP de connexion"""
+    """Envoie un email HTML avec le code OTP de connexion Admin."""
     subject = "Votre code de connexion HelpDesk IA"
     body = f"""
     <html>
@@ -58,7 +57,7 @@ def send_otp_login_email(to_email: str, first_name: str, otp: str):
     send_email(to_email, subject, body, html=True)
 
 def send_password_reset_email(to_email: str, otp: str):
-    """Envoie un email HTML avec le code OTP pour réinitialiser le mot de passe"""
+    """Envoie un email HTML avec le code OTP pour réinitialiser le mot de passe."""
     subject = "Réinitialisation de votre mot de passe"
     body = f"""
     <html>
@@ -81,7 +80,7 @@ def send_password_reset_email(to_email: str, otp: str):
     send_email(to_email, subject, body, html=True)
 
 def send_ticket_assignment_email(to_email: str, tech_name: str, ticket_title: str, ticket_desc: str, employe_name: str):
-    """Envoie un email au technicien quand un ticket lui est assigné"""
+    """Envoie un email au technicien quand un ticket lui est assigné."""
     subject = f"Nouveau ticket assigné : {ticket_title}"
     body = f"""
     <html>
@@ -93,12 +92,12 @@ def send_ticket_assignment_email(to_email: str, tech_name: str, ticket_title: st
             <h2>🛠️ Nouveau ticket assigné</h2>
             <p>Bonjour {tech_name},</p>
             <p>Un nouveau ticket vous a été assigné par <strong>{employe_name}</strong>.</p>
-            
+
             <div style="background: #f9fafb; border-left: 4px solid #059669; padding: 15px; margin: 20px 0;">
                 <h3 style="margin: 0 0 10px 0; color: #1f2937;">{ticket_title}</h3>
                 <p style="margin: 0; color: #4b5563;">{ticket_desc}</p>
             </div>
-            
+
             <p>Merci de vous connecter à votre espace technicien pour le prendre en charge.</p>
             <a href="http://localhost:5173" style="display: inline-block; background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Accéder à mon espace</a>
         </div>
