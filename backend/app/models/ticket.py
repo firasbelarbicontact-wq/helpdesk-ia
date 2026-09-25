@@ -4,6 +4,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 import enum
 from app.core.database import Base
+from app.models.employe import Employe, Technician
+from app.models.category import Category
+from app.models.interaction import AIAnalysis, Message
+
 
 class TicketStatus(str, enum.Enum):
     NOUVEAU = "NOUVEAU"
@@ -46,16 +50,14 @@ class Attachment(Base):
     ticket_id: Mapped[str] = mapped_column(String(36), ForeignKey("tickets.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     file_url: Mapped[str] = mapped_column(String(500), nullable=False)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-
     ticket: Mapped["Ticket"] = relationship("Ticket", back_populates="attachments")
 
 class TicketHistory(Base):
     __tablename__ = "ticket_history"
-
+    
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     ticket_id: Mapped[str] = mapped_column(String(36), ForeignKey("tickets.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("employes.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     action: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-
     ticket: Mapped["Ticket"] = relationship("Ticket", back_populates="history")
