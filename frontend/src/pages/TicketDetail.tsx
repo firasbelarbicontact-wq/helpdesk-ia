@@ -25,18 +25,20 @@ export default function TicketDetail() {
       const data = await getTicketById(id);
       setTicket(data);
     } catch (err) {
-      // Gestion silencieuse pour ne pas polluer la console
+      console.error("Une erreur est survenue lors de l'analyse.", err);
     } finally {
       setLoading(false);
     }
   }, [id]);
 
-  useEffect(() => {
-    loadTicket();
+    useEffect(() => {
+    (async () => {
+      await loadTicket();
+    })();
 
     const wsBaseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace('http', 'ws');
     const ws = new WebSocket(`${wsBaseUrl}/ws/dashboard`);
-
+    
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.event === 'ticket_updated' && data.ticket_id === id) {
@@ -53,7 +55,7 @@ export default function TicketDetail() {
       const updatedTicket = await updateTicketStatus(id, newStatus);
       setTicket(updatedTicket);
     } catch (err) {
-      alert("Impossible de changer le statut.");
+      console.error("Une erreur est survenue lors du changement de statut.", err);
     }
   };
 
@@ -64,7 +66,7 @@ export default function TicketDetail() {
       await rateTicket(id, rating, feedback);
       await loadTicket(); // Rafraîchit pour masquer le formulaire de notation
     } catch (err) {
-      alert("Impossible de soumettre la note.");
+      console.error("Une erreur est survenue lors de la soumission de la note.", err);
     } finally {
       setSubmittingRating(false);
     }

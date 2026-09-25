@@ -26,27 +26,28 @@ export default function DashboardEmploye() {
       const data = await getTickets(filtersRef.current);
       setTickets(data);
     } catch (err) {
-      // Gestion silencieuse pour ne pas polluer la console
+      console.error("Une erreur est survenue lors de la récupération des tickets.", err);
     } finally {
       if (!silent) setLoading(false);
     }
   };
 
-  useEffect(() => {
+    useEffect(() => {
     let isMounted = true;
-
-    const loadInitialData = async () => {
+    (async () => {
       await fetchTickets();
+      
       if (user?.role === 'TECHNICIAN') {
         try {
           const stats = await getMyTechnicianStats();
           if (isMounted) setTechStats(stats);
-        } catch (err) {}
+        } catch (err) {
+          console.error("Une erreur est survenue lors de la récupération des statistiques du technicien.", err);
+        }
       }
-    };
+    })();
 
-    loadInitialData();
-
+    // --- CONNEXION WEBSOCKET POUR LE TEMPS RÉEL ---
     const wsBaseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace('http', 'ws');
     const ws = new WebSocket(`${wsBaseUrl}/ws/dashboard`);
 
@@ -85,7 +86,9 @@ export default function DashboardEmploye() {
     try {
       const data = await getTickets(filters);
       setTickets(data);
-    } catch (err) {}
+    } catch (err) {
+      console.error("Une erreur est survenue lors de la récupération des tickets.", err);
+    }
     finally { setLoading(false); }
   };
 

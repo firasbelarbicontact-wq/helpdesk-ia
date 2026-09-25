@@ -18,7 +18,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
-
       <div className="flex min-h-screen flex-col lg:pl-72">
         <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl">
           <div className="flex h-16 items-center justify-between px-4 sm:px-8">

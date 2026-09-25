@@ -14,6 +14,7 @@ export default function AdminTechnicians() {
         const data = await getTechniciansDetails();
         setTechDetails(data);
       } catch (err) {
+        console.error('Error fetching technician details:', err);
         // Gestion silencieuse pour ne pas polluer la console
       } finally {
         setLoading(false);

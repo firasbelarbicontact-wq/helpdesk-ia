@@ -26,7 +26,7 @@ export default function DashboardAdmin() {
         setStats(statsData); 
         setTechDetails(techData);
       } catch (err) {
-        // Gestion silencieuse pour ne pas polluer la console
+        console.error("Une erreur est survenue lors de la récupération des données.", err);
       } finally {
         setLoading(false);
       }
@@ -52,7 +52,7 @@ export default function DashboardAdmin() {
       
       await refreshUsers();
     } catch (err) {
-      alert("Une erreur est survenue lors de cette action.");
+      console.error("Une erreur est survenue lors de cette action.", err);
     }
   };
 

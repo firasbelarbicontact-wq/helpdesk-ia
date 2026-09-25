@@ -15,7 +15,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
   const linkBase = 'flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium';
   const activeLink = 'bg-white text-slate-900 shadow-sm';
   const inactiveLink = 'text-slate-400 hover:bg-slate-800 hover:text-white';
-
+  
   const handleLogout = () => {
     logout();
     onClose();

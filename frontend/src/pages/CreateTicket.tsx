@@ -23,7 +23,7 @@ export default function CreateTicket() {
       const data = await analyzeTicket(description, file);
       setAiResult(data);
     } catch (err) {
-      alert("Une erreur est survenue lors de l'analyse.");
+      console.error("Une erreur est survenue lors de l'analyse.", err);
     } finally {
       setLoading(false);
     }
@@ -39,7 +39,7 @@ export default function CreateTicket() {
       }
       navigate('/dashboard');
     } catch (err) {
-      alert("Erreur lors de la création du ticket.");
+      console.error("Une erreur est survenue lors de la création du ticket.", err);
     } finally {
       setCreating(false);
     }
