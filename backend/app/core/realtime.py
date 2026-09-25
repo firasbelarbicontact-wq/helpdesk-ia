@@ -24,6 +24,6 @@ class DashboardManager:
                 await connection.send_json(message)
             except:
                 pass # Ignore si un navigateur s'est déconnecté brusquement
-
+            
 # Instance globale partagée par toute l'application
 dashboard_manager = DashboardManager()

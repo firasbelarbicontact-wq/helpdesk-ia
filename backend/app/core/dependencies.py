@@ -2,12 +2,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
-
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.employe import Employe, RoleEnum
 
-# HTTPBearer force le frontend à envoyer un jeton dans l'en-tête "Authorization"
 oauth2_scheme = HTTPBearer()
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Employe:

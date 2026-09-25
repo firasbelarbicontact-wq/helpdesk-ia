@@ -14,6 +14,7 @@ MODEL_NAME = os.getenv("OLLAMA_MODEL", "llava")
 MAX_RETRIES = 2
 MAX_DESCRIPTION_LENGTH = 2000
 
+
 class Category(str, Enum):
     """Catégories de problèmes informatiques reconnues par l'IA."""
     RESEAU = "Réseau"
@@ -23,11 +24,13 @@ class Category(str, Enum):
     SECURITE = "Sécurité"
     AUTRE = "Autre"
 
+
 class TicketAnalysis(BaseModel):
     """Schéma Pydantic strict que l'IA doit obligatoirement respecter dans sa réponse."""
     category: Category
     causes: list[str] = Field(min_length=2, max_length=4)
     solutions: list[str] = Field(min_length=2, max_length=4)
+
 
 # Prompt système définissant le rôle et les règles de l'IA
 SYSTEM_PROMPT = """Tu es un expert en support informatique (HelpDesk) avec 15 ans d'expérience.
@@ -35,6 +38,7 @@ Réponds TOUJOURS en français.
 Réponds UNIQUEMENT avec un objet JSON valide respectant strictement le schéma fourni,
 sans texte, explication ni balise Markdown avant ou après.
 Les solutions doivent être concrètes et actionnables, qu'un technicien peut suivre immédiatement."""
+
 
 def _build_user_prompt(description: str, has_image: bool) -> str:
     """Construit le prompt utilisateur en injectant la description et le contexte visuel."""
@@ -53,6 +57,7 @@ def _build_user_prompt(description: str, has_image: bool) -> str:
         "- solutions : 2 à 4 solutions concrètes, de la plus simple à la plus avancée"
     )
 
+
 def _clean_json(raw: str) -> str:
     """Filet de sécurité : retire d'éventuelles balises Markdown parasites autour du JSON."""
     raw = raw.strip()
@@ -61,6 +66,7 @@ def _clean_json(raw: str) -> str:
         if raw.lower().startswith("json"):
             raw = raw[4:]
     return raw.strip()
+
 
 def analyze_ticket_with_ai(description: str, image_base64: str | None = None) -> dict:
     """
@@ -115,9 +121,3 @@ def analyze_ticket_with_ai(description: str, image_base64: str | None = None) ->
         "causes": ["Impossible d'analyser les causes pour le moment."],
         "solutions": ["Veuillez contacter un administrateur ou réessayer plus tard."],
     }
-
-# Permet de tester le service IA indépendamment en ligne de commande
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    result = analyze_ticket_with_ai("Mon écran reste noir au démarrage de l'ordinateur.")
-    print(result)

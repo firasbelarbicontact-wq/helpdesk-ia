@@ -4,7 +4,7 @@ from jose import jwt
 from app.core.config import settings
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Vérifie si le mot de passe en clair correspond au hashage bcrypt."""
+    """Vérifie si le mot de passe en clair correspond au mot de passe haché."""
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 def get_password_hash(password: str) -> str:

@@ -35,7 +35,6 @@ def deactivate_employe(employe_id: str, db: Session = Depends(get_db), current_a
 
 @router.put("/activate/{employe_id}", response_model=EmployeResponse)
 def activate_employe(employe_id: str, db: Session = Depends(get_db), current_admin: Employe = Depends(get_current_admin)):
-    """Réactive un compte précédemment désactivé."""
     employe = db.query(Employe).filter(Employe.id == employe_id).first()
     if not employe:
         raise HTTPException(status_code=404, detail="Employé introuvable")
